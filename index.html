@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRIND</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #181818;
+    --surface2: #222;
+    --border: #2c2c2c;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #555;
+    --muted2: #888;
+    --green: #4ade80;
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .screen.active { display: flex; }
+
+  /* HOME */
+  #home { background: var(--bg); overflow-y: auto; }
+
+  .home-top {
+    padding: 48px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .week-heading {
+    margin-top: 28px;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .day-list { flex: 1; }
+
+  .day-row {
+    display: flex;
+    align-items: center;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.12s;
+    gap: 18px;
+  }
+  .day-row:active { background: var(--surface); }
+
+  .day-row-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.18s;
+  }
+  .day-row:hover .day-row-accent { transform: scaleY(1); }
+
+  .day-row.done { opacity: 0.45; }
+
+  .day-idx {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    color: var(--muted);
+    width: 36px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .day-row.done .day-idx { color: var(--green); }
+
+  .day-row-info { flex: 1; min-width: 0; }
+
+  .day-row-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .day-row-sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .day-pill {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .pill-push { background: #ff6b3518; color: var(--accent2); border: 1px solid #ff6b3535; }
+  .pill-pull { background: #4ade8018; color: var(--green); border: 1px solid #4ade8035; }
+  .pill-arms { background: #e8ff4718; color: var(--accent); border: 1px solid #e8ff4735; }
+
+  .day-chevron { color: var(--muted); font-size: 18px; flex-shrink: 0; }
+  .day-row.done .day-chevron { color: var(--green); }
+
+  .home-bottom {
+    padding: 20px 28px 32px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    width: 100%;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--muted2); color: var(--text); }
+
+  /* WORKOUT */
+  #workout { background: var(--bg); flex-direction: column; }
+
+  .wk-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .wk-back {
+    background: none; border: none;
+    color: var(--muted2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .wk-back:hover { color: var(--text); }
+
+  .wk-day-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--muted2);
+  }
+
+  .wk-progress-strip { height: 4px; background: var(--border); flex-shrink: 0; }
+  .wk-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .wk-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 28px 24px;
+  }
+
+  .wk-ex-context {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .wk-ex-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 10vw, 66px);
+    letter-spacing: 2px;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .wk-ex-reps {
+    font-size: 18px;
+    color: var(--muted2);
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .wk-set-dots {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  .set-dot {
+    width: 36px;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border);
+    transition: background 0.3s, transform 0.2s;
+  }
+  .set-dot.done    { background: var(--green); }
+  .set-dot.skipped { background: var(--muted); }
+  .set-dot.active  { background: var(--accent); transform: scaleY(1.5); }
+
+  .wk-actions { display: flex; flex-direction: column; gap: 14px; }
+
+  .wk-btn-done {
+    width: 100%;
+    padding: 22px;
+    background: var(--accent);
+    color: #0d0d0d;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: filter 0.15s, transform 0.1s;
+  }
+  .wk-btn-done:active { transform: scale(0.98); filter: brightness(0.9); }
+
+  .wk-btn-skip {
+    width: 100%;
+    padding: 16px;
+    background: none;
+    color: var(--muted2);
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .wk-btn-skip:hover { color: var(--text); border-color: var(--muted2); }
+
+  .wk-statusbar {
+    padding: 16px 28px 24px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .wk-status-txt {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* REST */
+  #rest {
+    background: var(--bg);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px 32px;
+  }
+
+  .rest-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 48px;
+  }
+
+  .rest-ring-wrap {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin-bottom: 48px;
+  }
+
+  .rest-ring-wrap svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+
+  .rest-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rest-seconds {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .rest-sec-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .rest-next-wrap {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .rest-next-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .rest-next-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .rest-skip-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 40px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .rest-skip-btn:hover { color: var(--text); border-color: var(--muted2); }
+
+  /* COMPLETE */
+  #complete {
+    background: var(--bg);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .complete-emoji {
+    font-size: 72px;
+    margin-bottom: 28px;
+    animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.3); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .complete-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .complete-day {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 48px;
+  }
+
+  .complete-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+
+  .cstat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 28px;
+    text-align: center;
+  }
+
+  .cstat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .cstat-lbl {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .complete-home {
+    width: 100%;
+    max-width: 360px;
+    padding: 20px;
+    background: var(--accent);
+    color: #0d0d0d;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: filter 0.15s;
+  }
+  .complete-home:hover { filter: brightness(1.08); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 32px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 32px 28px 24px;
+    max-width: 340px;
+    width: 100%;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .modal-body {
+    font-size: 13px;
+    color: var(--muted2);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .modal-actions { display: flex; gap: 12px; }
+
+  .modal-confirm {
+    flex: 1;
+    padding: 14px;
+    background: var(--red);
+    color: #0d0d0d;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+
+  .modal-cancel {
+    flex: 1;
+    padding: 14px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .modal-cancel:hover { color: var(--text); border-color: var(--muted2); }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-top">
+    <div class="logo">GRIND</div>
+    <div class="logo-sub">Weekly Workout</div>
+    <div class="week-heading" style="margin-top:28px">This Week</div>
+  </div>
+  <div class="day-list" id="dayList"></div>
+  <div class="home-bottom">
+    <button class="reset-btn" onclick="askReset()">↺ &nbsp;Reset Week Progress</button>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div id="workout" class="screen">
+  <div class="wk-topbar">
+    <button class="wk-back" onclick="goHome()">← Back</button>
+    <div class="wk-day-label" id="wkDayLabel"></div>
+    <div class="wk-status-txt" id="wkTotLabel"></div>
+  </div>
+  <div class="wk-progress-strip">
+    <div class="wk-progress-fill" id="wkProgressFill" style="width:0%"></div>
+  </div>
+  <div class="wk-main">
+    <div class="wk-ex-context" id="wkExContext"></div>
+    <div class="wk-ex-name" id="wkExName"></div>
+    <div class="wk-ex-reps" id="wkExReps"></div>
+    <div class="wk-set-dots" id="wkSetDots"></div>
+    <div class="wk-actions">
+      <button class="wk-btn-done" onclick="markSet('done')">✓ &nbsp;SET DONE</button>
+      <button class="wk-btn-skip" onclick="markSet('skipped')">Skip this set</button>
+    </div>
+  </div>
+  <div class="wk-statusbar">
+    <div class="wk-status-txt" id="wkStatusLeft"></div>
+    <div class="wk-status-txt" id="wkStatusRight"></div>
+  </div>
+</div>
+
+<!-- REST -->
+<div id="rest" class="screen">
+  <div class="rest-eyebrow">Rest</div>
+  <div class="rest-ring-wrap">
+    <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="110" cy="110" r="100" stroke="#222" stroke-width="8"/>
+      <circle id="restRingCircle" cx="110" cy="110" r="100"
+        stroke="#e8ff47" stroke-width="8" stroke-linecap="round"
+        stroke-dasharray="628" stroke-dashoffset="0"/>
+    </svg>
+    <div class="rest-number">
+      <div class="rest-seconds" id="restSec">90</div>
+      <div class="rest-sec-label">seconds</div>
+    </div>
+  </div>
+  <div class="rest-next-wrap">
+    <div class="rest-next-label">Up Next</div>
+    <div class="rest-next-name" id="restNextName"></div>
+  </div>
+  <button class="rest-skip-btn" onclick="skipRest()">Skip Rest</button>
+</div>
+
+<!-- COMPLETE -->
+<div id="complete" class="screen">
+  <div class="complete-emoji">🔥</div>
+  <div class="complete-title">DONE</div>
+  <div class="complete-day" id="completeDayLabel"></div>
+  <div class="complete-stats">
+    <div class="cstat">
+      <div class="cstat-num" id="cStatSets">0</div>
+      <div class="cstat-lbl">Sets</div>
+    </div>
+    <div class="cstat">
+      <div class="cstat-num" id="cStatEx">0</div>
+      <div class="cstat-lbl">Exercises</div>
+    </div>
+  </div>
+  <button class="complete-home" onclick="finishDay()">← Back to Week</button>
+</div>
+
+<!-- RESET MODAL -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box">
+    <div class="modal-title">Reset Progress?</div>
+    <div class="modal-body">This will clear all completed days for the week. You sure?</div>
+    <div class="modal-actions">
+      <button class="modal-confirm" onclick="confirmReset()">Reset</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DAYS = [
+  {
+    // Chest: 7 sets (Mon) + 5 sets (Wed) = 12/week ✓
+    // Triceps: 6 sets (Mon) + 6 sets (Wed) = 12/week ✓
+    // Session total: 10 sets — at diminishing returns cap ✓
+    id: 0, name: 'Monday', type: 'Push — Chest & Triceps', tag: 'push',
+    exercises: [
+      { name: 'Chest Press Machine', sets: 4, reps: '6–10 reps', rest: 90 },
+      { name: 'Incline Chest Press Machine', sets: 3, reps: '8–12 reps', rest: 90 },
+      { name: 'Pec Deck Fly', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+    ]
+  },
+  {
+    // Back: 8 sets (Tue) + 6 sets (Thu) = 14/week ✓
+    // Biceps: 6 sets (Tue) + 6 sets (Thu) = 12/week ✓
+    // Session total: 9 sets ✓
+    id: 1, name: 'Tuesday', type: 'Pull — Back & Biceps', tag: 'pull',
+    exercises: [
+      { name: 'Pulldown Machine', sets: 4, reps: '6–10 reps', rest: 90 },
+      { name: 'Row Machine', sets: 4, reps: '6–10 reps', rest: 90 },
+      { name: 'Bicep Curl', sets: 3, reps: '8–12 reps', rest: 60 },
+      { name: 'Hammer Curl', sets: 3, reps: '8–12 reps', rest: 60 },
+    ]
+  },
+  {
+    // Chest: 5 sets (Wed) — 2nd session splits weekly vol ✓
+    // Shoulders: 6 sets (Wed) + 6 sets (Fri) = 12/week ✓
+    // Triceps: 6 sets (Wed) — 2nd session splits weekly vol ✓
+    // Session total: 10 sets — at cap ✓
+    id: 2, name: 'Wednesday', type: 'Push — Shoulders & Chest', tag: 'push',
+    exercises: [
+      { name: 'Arnold Press', sets: 4, reps: '8–12 reps', rest: 90 },
+      { name: 'Lateral Raise', sets: 3, reps: '12–15 reps', rest: 60 },
+      { name: 'Chest Press Machine', sets: 3, reps: '10–12 reps', rest: 75 },
+      { name: 'Pec Deck Fly', sets: 2, reps: '12–15 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+    ]
+  },
+  {
+    // Back: 6 sets (Thu) — 2nd session ✓
+    // Biceps: 6 sets (Thu) — 2nd session ✓
+    // Session total: 9 sets ✓
+    id: 3, name: 'Thursday', type: 'Pull — Back & Biceps', tag: 'pull',
+    exercises: [
+      { name: 'Pulldown Machine', sets: 3, reps: '8–12 reps', rest: 90 },
+      { name: 'Row Machine', sets: 3, reps: '8–12 reps', rest: 90 },
+      { name: 'Bicep Curl', sets: 3, reps: '8–12 reps', rest: 60 },
+      { name: 'Hammer Curl', sets: 2, reps: '8–12 reps', rest: 60 },
+      { name: 'Reverse Grip Curl', sets: 2, reps: '12–15 reps', rest: 60 },
+    ]
+  },
+  {
+    // Shoulders: 6 sets (Fri) — 2nd session ✓
+    // Biceps gets a 3rd touch — optional extra volume day
+    // Triceps — light 3rd touch
+    // Session total: 9 sets ✓
+    id: 4, name: 'Friday', type: 'Shoulders & Arms', tag: 'arms',
+    exercises: [
+      { name: 'Arnold Press', sets: 3, reps: '8–12 reps', rest: 90 },
+      { name: 'Lateral Raise', sets: 3, reps: '12–15 reps', rest: 60 },
+      { name: 'Bicep Curl', sets: 3, reps: '8–12 reps', rest: 60 },
+      { name: 'Hammer Curl', sets: 2, reps: '10–12 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+    ]
+  },
+];
+
+// ── STORAGE — use sessionStorage so reset actually works ─────────────────────
+const STORAGE_KEY = 'grind_v3_progress';
+
+function loadProgress() {
+  try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveProgress(p) {
+  try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+}
+
+let progress = loadProgress();
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentDay  = null;
+let setStatus   = [];   // [exIdx][setIdx] = 'pending'|'done'|'skipped'
+let curExIdx    = 0;
+let curSetIdx   = 0;
+let restTimer   = null;
+let restDur     = 90;
+let restElapsed = 0;
+let restCb      = null;
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function renderHome() {
+  const list = document.getElementById('dayList');
+  list.innerHTML = '';
+  DAYS.forEach(day => {
+    const done = !!progress[day.id];
+    const row  = document.createElement('div');
+    row.className = 'day-row' + (done ? ' done' : '');
+    row.innerHTML = `
+      <div class="day-row-accent"></div>
+      <div class="day-idx">${day.id + 1}</div>
+      <div class="day-row-info">
+        <div class="day-row-name">${day.name}</div>
+        <div class="day-row-sub">${day.type}</div>
+      </div>
+      <span class="day-pill pill-${day.tag}">${day.tag.toUpperCase()}</span>
+      <div class="day-chevron">${done ? '✓' : '›'}</div>
+    `;
+    row.onclick = () => startDay(day.id);
+    list.appendChild(row);
+  });
+}
+
+// ── START DAY ─────────────────────────────────────────────────────────────────
+function startDay(dayId) {
+  currentDay = DAYS[dayId];
+  curExIdx   = 0;
+  curSetIdx  = 0;
+  setStatus  = currentDay.exercises.map(ex => Array(ex.sets).fill('pending'));
+  showScreen('workout');
+  renderWorkout();
+}
+
+// ── WORKOUT RENDER ────────────────────────────────────────────────────────────
+function renderWorkout() {
+  const ex        = currentDay.exercises[curExIdx];
+  const totalSets = setStatus.flat().length;
+  const doneSets  = setStatus.flat().filter(s => s !== 'pending').length;
+  const pct       = Math.round((doneSets / totalSets) * 100);
+
+  document.getElementById('wkDayLabel').textContent       = currentDay.name.toUpperCase();
+  document.getElementById('wkTotLabel').textContent       = `${doneSets} / ${totalSets} sets`;
+  document.getElementById('wkProgressFill').style.width   = pct + '%';
+  document.getElementById('wkExContext').textContent      = `Exercise ${curExIdx + 1} of ${currentDay.exercises.length}`;
+  document.getElementById('wkExName').textContent         = ex.name;
+  document.getElementById('wkExReps').textContent         = ex.reps;
+  document.getElementById('wkStatusLeft').textContent     = `Set ${curSetIdx + 1} of ${ex.sets}`;
+  document.getElementById('wkStatusRight').textContent    = `Rest ${ex.rest}s between sets`;
+
+  // dots
+  const dotsEl = document.getElementById('wkSetDots');
+  dotsEl.innerHTML = '';
+  setStatus[curExIdx].forEach((s, si) => {
+    const dot = document.createElement('div');
+    dot.className = 'set-dot' +
+      (s === 'done'    ? ' done'    :
+       s === 'skipped' ? ' skipped' :
+       si === curSetIdx ? ' active' : '');
+    dotsEl.appendChild(dot);
+  });
+}
+
+// ── MARK SET ──────────────────────────────────────────────────────────────────
+function markSet(result) {
+  setStatus[curExIdx][curSetIdx] = result;
+  const next = findNext();
+
+  if (!next) { finishAndComplete(); return; }
+
+  if (result === 'done') {
+    const restSec   = currentDay.exercises[curExIdx].rest;
+    const nextEx    = currentDay.exercises[next.ei];
+    const nextLabel = next.ei !== curExIdx
+      ? nextEx.name
+      : `${nextEx.name} — Set ${next.si + 1}`;
+    startRest(restSec, nextLabel, () => {
+      curExIdx  = next.ei;
+      curSetIdx = next.si;
+      renderWorkout();
+    });
+  } else {
+    curExIdx  = next.ei;
+    curSetIdx = next.si;
+    renderWorkout();
+  }
+}
+
+function findNext() {
+  for (let ei = 0; ei < setStatus.length; ei++)
+    for (let si = 0; si < setStatus[ei].length; si++)
+      if (setStatus[ei][si] === 'pending') return { ei, si };
+  return null;
+}
+
+// ── COMPLETE ──────────────────────────────────────────────────────────────────
+function finishAndComplete() {
+  document.getElementById('cStatSets').textContent    = setStatus.flat().filter(s => s === 'done').length;
+  document.getElementById('cStatEx').textContent      = currentDay.exercises.length;
+  document.getElementById('completeDayLabel').textContent = `${currentDay.name} — ${currentDay.type}`;
+  progress[currentDay.id] = true;
+  saveProgress(progress);
+  showScreen('complete');
+}
+
+function finishDay() { showScreen('home'); renderHome(); }
+
+// ── REST ──────────────────────────────────────────────────────────────────────
+function startRest(seconds, nextLabel, cb) {
+  restDur     = seconds;
+  restElapsed = 0;
+  restCb      = cb;
+
+  document.getElementById('restNextName').textContent = nextLabel;
+  updateRestDisplay();
+
+  const ring = document.getElementById('restRingCircle');
+  ring.style.transition       = 'none';
+  ring.style.strokeDashoffset = '0';
+
+  showScreen('rest');
+  clearInterval(restTimer);
+
+  restTimer = setInterval(() => {
+    restElapsed++;
+    updateRestDisplay();
+    ring.style.transition       = 'stroke-dashoffset 1s linear';
+    ring.style.strokeDashoffset = ((restElapsed / restDur) * 628).toString();
+    if (restElapsed >= restDur) { clearInterval(restTimer); endRest(); }
+  }, 1000);
+}
+
+function updateRestDisplay() {
+  document.getElementById('restSec').textContent = restDur - restElapsed;
+}
+
+function skipRest()  { clearInterval(restTimer); endRest(); }
+
+function endRest() {
+  showScreen('workout');
+  if (restCb) { restCb(); restCb = null; }
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function askReset()     { document.getElementById('resetModal').classList.add('open'); }
+function closeModal()   { document.getElementById('resetModal').classList.remove('open'); }
+function confirmReset() {
+  progress = {};
+  saveProgress(progress);
+  closeModal();
+  renderHome();
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function goHome() { clearInterval(restTimer); showScreen('home'); renderHome(); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderHome();
+</script>
+</body>
+</html>
