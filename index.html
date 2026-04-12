@@ -646,13 +646,15 @@ const DAYS = [
     // Chest: 7 sets (Mon) + 5 sets (Wed) = 12/week ✓
     // Triceps: 6 sets (Mon) + 6 sets (Wed) = 12/week ✓
     // Session total: 10 sets — at diminishing returns cap ✓
-    id: 0, name: 'Monday', type: 'Push — Chest & Triceps', tag: 'push',
+    id: 0, name: 'Monday', type: 'Push — Chest, Triceps & Abs', tag: 'push',
     exercises: [
       { name: 'Chest Press Machine', sets: 4, reps: '6–10 reps', rest: 90 },
       { name: 'Incline Chest Press Machine', sets: 3, reps: '8–12 reps', rest: 90 },
       { name: 'Pec Deck Fly', sets: 3, reps: '10–14 reps', rest: 60 },
       { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
       { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'High Pulley Ab Crunch', sets: 3, reps: '12–15 reps', rest: 45 },
+      { name: 'Oblique Side Bend', sets: 2, reps: '12–15 reps each side', rest: 45 },
     ]
   },
   {
@@ -672,7 +674,7 @@ const DAYS = [
     // Shoulders: 6 sets (Wed) + 6 sets (Fri) = 12/week ✓
     // Triceps: 6 sets (Wed) — 2nd session splits weekly vol ✓
     // Session total: 10 sets — at cap ✓
-    id: 2, name: 'Wednesday', type: 'Push — Shoulders & Chest', tag: 'push',
+    id: 2, name: 'Wednesday', type: 'Push — Shoulders, Chest & Abs', tag: 'push',
     exercises: [
       { name: 'Arnold Press', sets: 4, reps: '8–12 reps', rest: 90 },
       { name: 'Lateral Raise', sets: 3, reps: '12–15 reps', rest: 60 },
@@ -680,6 +682,8 @@ const DAYS = [
       { name: 'Pec Deck Fly', sets: 2, reps: '12–15 reps', rest: 60 },
       { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
       { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'High Pulley Ab Crunch', sets: 3, reps: '12–15 reps', rest: 45 },
+      { name: 'Oblique Side Bend', sets: 2, reps: '12–15 reps each side', rest: 45 },
     ]
   },
   {
@@ -700,7 +704,7 @@ const DAYS = [
     // Biceps gets a 3rd touch — optional extra volume day
     // Triceps — light 3rd touch
     // Session total: 9 sets ✓
-    id: 4, name: 'Friday', type: 'Shoulders & Arms', tag: 'arms',
+    id: 4, name: 'Friday', type: 'Shoulders, Arms & Abs', tag: 'arms',
     exercises: [
       { name: 'Arnold Press', sets: 3, reps: '8–12 reps', rest: 90 },
       { name: 'Lateral Raise', sets: 3, reps: '12–15 reps', rest: 60 },
@@ -708,6 +712,8 @@ const DAYS = [
       { name: 'Hammer Curl', sets: 2, reps: '10–12 reps', rest: 60 },
       { name: 'Tricep Pulldown — Rope', sets: 3, reps: '10–14 reps', rest: 60 },
       { name: 'Tricep Pulldown — Bar', sets: 3, reps: '10–14 reps', rest: 60 },
+      { name: 'High Pulley Ab Crunch', sets: 3, reps: '12–15 reps', rest: 45 },
+      { name: 'Oblique Side Bend', sets: 3, reps: '12–15 reps each side', rest: 45 },
     ]
   },
 ];
